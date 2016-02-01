@@ -2,46 +2,49 @@ from collections import Counter, defaultdict
 import itertools
 import sys
 import os
-import string
 import numpy as np
 
 class Riffer():
-    def __init__(self, file_in):
-        self.d = self.txt2Markov(file_in)
+    def __init__(self, dir_in):
+        d_counter = self.parseFiles(dir_in)
+        # probability dictionary of markov chain -->
+        # word: ( [list,of,next,words], [prob,of,next,words] )
+        self.d = {k: ( v.keys(), np.array(v.values(), dtype=np.float32) \
+                        / sum(v.itervalues()) ) for k,v in d_counter.iteritems()}
 
-    def txt2Markov(self, file_in):
+
+    def parseFiles(self, dir_in):
+        d = defaultdict(lambda: Counter())
+        for f in os.listdir(dir_in):
+            d = self.txt2Markov(d, os.path.join(os.path.abspath(dir_in), f))
+        return d
+
+
+    def txt2Markov(self, d_counter, file_in):
         with open(file_in,'r') as f:
-            #iterWords(f)
-            # TODO: support for '\n' characters
-            #words = f.read().strip().translate(None, string.punctuation).upper().split()
-            words = f.read().strip().lower().split()
-            n_words = len(words)
-        iterPairs = ((words[i], words[i+1]) for i in xrange(n_words-2))
+            # TODO: multiple whitespace in a row ?
+            words = f.read().strip().lower().split(' ')
         # generalizable n-gram sliding window
         #iterPairs = itertools.izip(*(itertools.islice(words, i, None) for i in xrange(2)))
-
-        d_counter = defaultdict(lambda: Counter())
+        iterPairs = ((words[i], words[i+1]) for i in xrange(len(words)-2))
         for w1, w2 in iterPairs:
             d_counter[w1].update([w2])
-
-        d_probs = {k: ( v.keys(), np.array(v.values(), dtype=np.float32) \
-                        / sum(v.itervalues()) ) for k,v in d_counter.iteritems()}
-        return d_probs
+        return d_counter
 
 
-    def riff(self, word = None, continue_for = np.inf):
+    def riff(self, word = None, continue_for = np.inf, accum = []):
         if not word:
             # seed randomly from all words
             word = np.random.choice(self.d.keys())
         choices, probs = self.d[word]
         nxt = np.random.choice(choices, p = probs)
-        print nxt
+        accum.append(nxt)
         if continue_for:
             try:
-                self.riff(nxt, continue_for-1)
+                self.riff(nxt, continue_for-1, accum)
             except(RuntimeError):
                 pass
-        return
+        return ' '.join(accum)
 
 
 #def iterWords(file_in):
@@ -52,9 +55,9 @@ class Riffer():
 
 if __name__ == "__main__":
     try:
-        FILE = sys.argv[1]
+        DIR = sys.argv[1]
     except(IndexError):
-        FILE = './backseat_freestyle.txt'
+        DIR = './kendrick'
 
-    x = Riffer(os.path.abspath(FILE))
-    x.riff(continue_for=100)
+    x = Riffer(DIR)
+    print x.riff(continue_for=100)
