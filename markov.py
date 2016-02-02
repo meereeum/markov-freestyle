@@ -5,7 +5,8 @@ import os
 import numpy as np
 
 class Riffer():
-    def __init__(self, dir_in):
+    def __init__(self, dir_in, newline_chars = True):
+        self.spliton = (' ' if newline_chars else None) # split defaults to whitespace
         d_counter = self.parseFiles(dir_in)
         # probability dictionary of markov chain -->
         # word: ( [list,of,next,words], [prob,of,next,words] )
@@ -15,15 +16,19 @@ class Riffer():
 
     def parseFiles(self, dir_in):
         d = defaultdict(lambda: Counter())
-        for f in os.listdir(dir_in):
-            d = self.txt2Markov(d, os.path.join(os.path.abspath(dir_in), f))
+        # depth = 1
+        #dirname, subdirs, files = os.walk(os.path.abspath(dir_in)).next()
+        for root, dirs, files in os.walk(os.path.abspath(dir_in)):
+            for filepath in (os.path.join(root, f) for f in files):
+                # update d_counter
+                d = self.txt2Markov(d, filepath)
         return d
 
 
     def txt2Markov(self, d_counter, file_in):
         with open(file_in,'r') as f:
             # TODO: multiple whitespace in a row ?
-            words = f.read().strip().lower().split(' ')
+            words = f.read().strip().lower().split(self.spliton)
         # generalizable n-gram sliding window
         #iterPairs = itertools.izip(*(itertools.islice(words, i, None) for i in xrange(2)))
         iterPairs = ((words[i], words[i+1]) for i in xrange(len(words)-2))
@@ -32,16 +37,21 @@ class Riffer():
         return d_counter
 
 
-    def riff(self, word = None, continue_for = np.inf, accum = []):
+    def freestyle(self, word = None, continue_for = np.inf, accum = []):
         if not word:
             # seed randomly from all words
             word = np.random.choice(self.d.keys())
-        choices, probs = self.d[word]
-        nxt = np.random.choice(choices, p = probs)
+        try:
+            choices, probs = self.d[word]
+            nxt = np.random.choice(choices, p = probs)
+        except(KeyError):
+            # why does this happen ?
+            print 'uh oh: {}'.format(word)
+            code.interact(local=locals())
         accum.append(nxt)
         if continue_for:
             try:
-                self.riff(nxt, continue_for-1, accum)
+                self.freestyle(nxt, continue_for-1, accum)
             except(RuntimeError):
                 pass
         return ' '.join(accum)
@@ -60,4 +70,5 @@ if __name__ == "__main__":
         DIR = './kendrick'
 
     x = Riffer(DIR)
-    print x.riff(continue_for=100)
+    print x.freestyle()
+    #print x.freestyle(continue_for = 100)
