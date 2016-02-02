@@ -5,27 +5,11 @@ Riffing on rap lyrics with Markov chains
 ```$ python markov.py path/to/dir/with/awesome/lyrics.txt```
 
 # e.g.
-riffing-ception: own project directory as of 2/1/16, including Backseat Freestyle
-
 ```$ python markov.py .```
-```i got bitches
-damn i got bitches, damn i got bitches, wifey, girlfriend and power
-respect my life on a dream
-kendrick have a dream
-martin had pop it make me cum fast to do this
-park it in the world for seventy-two hours
 
+where ```.``` is own git project directory as of 2/1/16, including Backseat Freestyle
 
-goddamn i got options like oj, killing everything from lead showers
-
-
-martin had a relay race with a relay race with a relay race with a dream
-martin had a good grind
-and i can fuck the matrix
-my mind or die from pussy to that ass, body cast on cloud nine and power
-respect my life i can fuck y'all, i got bitches
-damn i can fuck the
-Miriams-MacBook-Pro:markov-txt miriamshiffman$ ipython markov.py .
+```
 if $newrev is winners, screaming
 
 
@@ -60,3 +44,5 @@ this sample hook is
 
 (1)
 ```
+
+\riffingception
