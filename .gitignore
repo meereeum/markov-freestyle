@@ -2,4 +2,4 @@
 *.pyc
 txt
 kendrick
-SECRETS.py
+ACTUAL_SECRETS.py
