@@ -1,8 +1,13 @@
 # markov-freestyle
-Riffing on rap lyrics with Markov chains
+Riffing on lyrics with Markov chains
 
 # Usage
-```$ python markov.py path/to/dir/with/awesome/lyrics.txt```
+```
+$ python scraper.py "my favorite rapper"
+```
+```
+$ python markov.py path/to/dir/with/awesome/lyrics.txt
+```
 
 # e.g.
 ```$ python markov.py .```
