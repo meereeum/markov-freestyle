@@ -10,16 +10,17 @@ def getLyricsFromURL(url, regex, keepchars=".+-'()&$"):
     """Given URL/to/song, scrape Rap Genius and save lyrics as ./<Song_Title>"""
     soup = BeautifulSoup(requests.get(url).content, 'lxml')
 
-    title_raw = soup.h1.get_text()
+    title_raw = soup.h1.text
     # title = ''.join(c if c.isalnum() or c in keepchars
     #                 else '_' for c in title_raw.rstrip()).lower()
     title = re.sub(' ', '_', title_raw.rstrip().lower())
 
     # get lyrics with song section breaks
-    lyrics_raw = ''.join(lyr.get_text() for lyr in soup.lyrics.find_all(['b','p']))
-    lyrics = re.sub(regex, '', lyrics_raw).strip() + '\n' # rm leading \n only
+    # lyrics_raw = ''.join(lyr.get_text() for lyr in soup.lyrics.find_all(['b','p']))
+    lyrics_raw = soup.find('div', class_='lyrics').text.strip()
+    lyrics = re.sub(regex, '', lyrics_raw) + '\n' # rm leading \n only
 
-    with open(title, 'w') as f:
+    with open(title, 'wb') as f:
         try:
             f.write(lyrics.encode("UTF-8"))
         except:
