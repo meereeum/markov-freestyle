@@ -6,13 +6,13 @@ from bs4 import BeautifulSoup
 import SECRETS
 
 
-def getLyricsFromURL(url, regex, keepchars = ".+-'()&$"):
+def getLyricsFromURL(url, regex, keepchars=".+-'()&$"):
     """Given URL/to/song, scrape Rap Genius and save lyrics as ./<Song_Title>"""
     soup = BeautifulSoup(requests.get(url).content, 'lxml')
 
     title_raw = soup.h1.get_text()
-    #title = ''.join(c if c.isalnum() or c in keepchars
-                    #else '_' for c in title_raw.rstrip()).lower()
+    # title = ''.join(c if c.isalnum() or c in keepchars
+    #                 else '_' for c in title_raw.rstrip()).lower()
     title = re.sub(' ', '_', title_raw.rstrip().lower())
 
     # get lyrics with song section breaks
@@ -23,9 +23,9 @@ def getLyricsFromURL(url, regex, keepchars = ".+-'()&$"):
         try:
             f.write(lyrics.encode("UTF-8"))
         except:
-            import code; code.interact(local=locals())
+            import IPython; IPython.embed()
 
-    print '{}, scraped...'.format(title)
+    print(f'{title}, scraped...')
 
 
 def getSongURLsByArtist(artist):
@@ -34,7 +34,7 @@ def getSongURLsByArtist(artist):
               'per_page': 50,
               'sort': 'popularity'}
     artist_id = getArtistID(artist)
-    base_url = 'https://api.genius.com/artists/{}/songs'.format(artist_id)
+    base_url = f'https://api.genius.com/artists/{artist_id}/songs'
     hits = requests.get(base_url, params).json()
     #outfile = "TODO" ??
     return (song['url'] for song in hits['response']['songs'])
@@ -50,24 +50,25 @@ def getArtistID(artist):
         # artist ID of first matching song
         return hits['response']['hits'][0]['result']['primary_artist']['id']
     except(IndexError):
-        print 'No hits ):'
+        print('No hits ):')
         raise
 
 
-#def doWork(file_in):
-    ## regex to remove `[HEADERS]`
-    #to_remove = re.compile('\[[^\]]*\]')
-    #with open(file_in, 'r') as f:
-        #for url in f.xreadlines():
-            #getLyricsFromURL(url.rstrip(), to_remove)
-            #time.sleep(5)
+# def doWork(file_in):
+#     # regex to remove `[HEADERS]`
+#     to_remove = re.compile('\[[^\]]*\]')
+#     with open(file_in, 'r') as f:
+#         for url in f.readlines():
+#             getLyricsFromURL(url.rstrip(), to_remove)
+#             time.sleep(5)
 
 
 def doWork(artist):
     # regex to remove `[HEADERS]`
-    to_remove = re.compile('\[[^\]]*\]')
+    TO_REMOVE = re.compile('\[[^\]]*\]')
+
     for url in getSongURLsByArtist(artist):
-        getLyricsFromURL(url, to_remove)
+        getLyricsFromURL(url, TO_REMOVE)
         time.sleep(5)
 
 
